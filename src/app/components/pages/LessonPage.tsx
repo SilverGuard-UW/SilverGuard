@@ -1,9 +1,9 @@
 import { useParams, Link } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card.tsx";
+import { Button } from "../ui/button.tsx";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAccessibility } from "../../contexts/AccessibilityContext.tsx";
 import { useEffect } from "react";
 
 const exampleData = [

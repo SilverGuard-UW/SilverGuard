@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card.tsx";
 import { Phone, Mail, MessageSquare } from "lucide-react";
 import { useEffect } from "react";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAccessibility } from "../../contexts/AccessibilityContext.tsx";
 
 export function GetHelpPage() {
   const { t } = useAccessibility();

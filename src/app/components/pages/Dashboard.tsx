@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Progress } from "../ui/progress";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card.tsx";
+import { Progress } from "../ui/progress.tsx";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { BookOpen, Trophy, TrendingUp, Target, ChevronDown, ChevronUp, CheckCircle2, Clock, X } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "../ui/button.tsx";
 import { Link } from "react-router";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAccessibility } from "../../contexts/AccessibilityContext.tsx";
 
 export function Dashboard() {
   const { t, language } = useAccessibility();

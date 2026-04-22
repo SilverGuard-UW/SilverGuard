@@ -1,6 +1,6 @@
 import { Home, LayoutDashboard, BookOpen, Shield, HelpCircle } from "lucide-react";
 import { Link, useLocation } from "react-router";
-import { useAccessibility } from "../contexts/AccessibilityContext";
+import { useAccessibility } from "../contexts/AccessibilityContext.tsx";
 
 export function Navigation() {
   const location = useLocation();

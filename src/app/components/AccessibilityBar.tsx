@@ -1,7 +1,7 @@
 import { Settings } from "lucide-react";
 import { Link } from "react-router";
-import { Button } from "./ui/button";
-import { useAccessibility } from "../contexts/AccessibilityContext";
+import { Button } from "./ui/button.tsx";
+import { useAccessibility } from "../contexts/AccessibilityContext.tsx";
 
 export function AccessibilityBar() {
   const { t } = useAccessibility();

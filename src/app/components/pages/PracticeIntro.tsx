@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import { Card, CardContent } from "../ui/card";
-import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card.tsx";
+import { Button } from "../ui/button.tsx";
 import { Shield } from "lucide-react";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAccessibility } from "../../contexts/AccessibilityContext.tsx";
 import { useEffect } from "react";
 
 export function PracticeIntro() {

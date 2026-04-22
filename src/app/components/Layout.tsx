@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router";
-import { Navigation } from "./Navigation";
-import { AccessibilityBar } from "./AccessibilityBar";
+import { Navigation } from "./Navigation.tsx";
+import { AccessibilityBar } from "./AccessibilityBar.tsx";
 
 export function Layout() {
   const location = useLocation();

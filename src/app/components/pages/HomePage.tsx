@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 import { Shield, BookOpen } from "lucide-react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { Button } from "../ui/button.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card.tsx";
+import { useAccessibility } from "../../contexts/AccessibilityContext.tsx";
 import { useEffect } from "react";
 
 export function HomePage() {

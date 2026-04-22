@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card.tsx";
+import { Button } from "../ui/button.tsx";
 import { AlertTriangle, CheckCircle, XCircle, Mail, MessageSquare, Phone, Smartphone } from "lucide-react";
-import { Progress } from "../ui/progress";
+import { Progress } from "../ui/progress.tsx";
 import { Volume2 } from "lucide-react";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAccessibility } from "../../contexts/AccessibilityContext.tsx";
 
 export function PhishingSimulator() {
   const { t, language } = useAccessibility();

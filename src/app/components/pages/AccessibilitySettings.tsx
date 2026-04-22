@@ -1,11 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Switch } from "../ui/switch";
-import { Label } from "../ui/label";
-import { Slider } from "../ui/slider";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card.tsx";
+import { Button } from "../ui/button.tsx";
+import { Switch } from "../ui/switch.tsx";
+import { Label } from "../ui/label.tsx";
+import { Slider } from "../ui/slider.tsx";
 import { useState, useEffect } from "react";
 import { Type, Eye, Palette, Globe, CheckCircle } from "lucide-react";
-import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAccessibility } from "../../contexts/AccessibilityContext.tsx";
 
 export function AccessibilitySettings() {
   const { language, setLanguage, textSize, setTextSize, t } = useAccessibility();
