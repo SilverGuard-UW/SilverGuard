@@ -7,7 +7,7 @@ export function Navigation() {
   const { t } = useAccessibility();
 
   const navItems = [
-    { path: "/", icon: Home, label: t("nav.home") },
+    { path: "/home", icon: Home, label: t("nav.home") },
     { path: "/education", icon: BookOpen, label: t("nav.learn") },
     { path: "/simulator", icon: Shield, label: t("nav.practice") },
     { path: "/dashboard", icon: LayoutDashboard, label: t("nav.progress") },
