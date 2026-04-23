@@ -21,6 +21,14 @@ const translations = {
     "nav.help": "Help",
     "nav.settings": "Settings",
     "nav.voice": "Voice",
+
+    // Login Page
+    "login.title": "Login",
+    "login.username": "Username",
+    "login.usernamePlaceholder": "Enter your username",
+    "login.password": "Password",
+    "login.passwordPlaceholder": "Enter your password",
+    "login.loginButton": "Log In",
     
     // Home Page
     "home.title": "SilverGuard",

@@ -4,7 +4,7 @@ import { AccessibilityBar } from "./AccessibilityBar";
 
 export function Layout() {
   const location = useLocation();
-  const showNav = location.pathname !== "/";
+  const showNav = location.pathname !== "/" && location.pathname !== "/home";
 
   return (
     <div className="min-h-screen bg-gray-50">
