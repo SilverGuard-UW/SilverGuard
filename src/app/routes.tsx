@@ -12,27 +12,32 @@ import { PhishingSimulator } from "./components/pages/PhishingSimulator";
 import { AccessibilitySettings } from "./components/pages/AccessibilitySettings";
 import { GetHelpPage } from "./components/pages/GetHelpPage";
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      Component: RootLayout,
+      children: [
+        {
+          path: "/",
+          Component: Layout,
+          children: [
+            { index: true, Component: LoginPage },
+            { path: "home", Component: HomePage },
+            { path: "dashboard", Component: Dashboard },
+            { path: "education", Component: EducationPage },
+            { path: "education/:lessonId", Component: LessonPage },
+            { path: "simulator", Component: PracticeIntro },
+            { path: "simulator/instructions", Component: PracticeInstructions },
+            { path: "simulator/quiz", Component: PhishingSimulator },
+            { path: "settings", Component: AccessibilitySettings },
+            { path: "help", Component: GetHelpPage },
+          ],
+        },
+      ],
+    },
+  ],
   {
-    path: "/",
-    Component: RootLayout,
-    children: [
-      {
-        path: "/",
-        Component: Layout,
-        children: [
-          { index: true, Component: LoginPage },
-          { path: "home", Component: HomePage },
-          { path: "dashboard", Component: Dashboard },
-          { path: "education", Component: EducationPage },
-          { path: "education/:lessonId", Component: LessonPage },
-          { path: "simulator", Component: PracticeIntro },
-          { path: "simulator/instructions", Component: PracticeInstructions },
-          { path: "simulator/quiz", Component: PhishingSimulator },
-          { path: "settings", Component: AccessibilitySettings },
-          { path: "help", Component: GetHelpPage },
-        ],
-      },
-    ],
-  },
-]);
+    basename: "/SilverGuard",
+  }
+);
