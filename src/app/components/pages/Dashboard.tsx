@@ -15,16 +15,15 @@ export function Dashboard() {
   const [averageConfidence, setAverageConfidence] = useState(0);
   const [expandedCard, setExpandedCard] = useState<'lessons' | 'confidence' | null>(null);
 
-  const totalLessons = 6; // Total number of lessons available
+  const totalLessons = 5; // Total number of lessons available
 
   // List of all lessons
   const allLessons = [
     { id: "what-are-phishing-scams", title: t("lesson.whatAreScams"), hasContent: true },
     { id: "avoiding-phishing-scams", title: t("lesson.avoidingScams"), hasContent: true },
     { id: "email-phishing", title: t("lesson.emailScams"), hasContent: true },
-    { id: "phone-scams", title: t("lesson.phoneScams"), hasContent: false },
-    { id: "social-media-scams", title: t("lesson.socialMedia"), hasContent: false },
-    { id: "reporting-scams", title: t("lesson.reportingScams"), hasContent: false },
+    { id: "phone-scams", title: t("lesson.phoneScams"), hasContent: true },
+    { id: "social-media-scams", title: t("lesson.socialMedia"), hasContent: true },
   ];
 
   useEffect(() => {
@@ -33,12 +32,13 @@ export function Dashboard() {
 
   useEffect(() => {
     // Load completed lessons from localStorage
-    const completed = JSON.parse(localStorage.getItem('silverguard-lessons-completed') || '[]');
+    const user = sessionStorage.getItem('silverguard-current-user') || 'default';
+    const completed = JSON.parse(localStorage.getItem(`silverguard-lessons-${user}`) || '[]');
     setLessonsCompleted(completed.length);
     setCompletedLessonsList(completed);
 
     // Load confidence/quiz history from localStorage
-    const history = JSON.parse(localStorage.getItem('silverguard-confidence') || '[]');
+    const history = JSON.parse(localStorage.getItem(`silverguard-confidence-${user}`) || '[]');
     setConfidenceHistory(history);
 
     // Calculate average confidence
@@ -66,9 +66,9 @@ export function Dashboard() {
   });
 
   // Get last 5 confidence ratings for trend
-  const confidenceTrend = confidenceHistory.slice(-5).map((entry: any, index: number) => {
-    const absoluteIndex = confidenceHistory.length - 5 + index;
-    const quizNumber = absoluteIndex >= 0 ? absoluteIndex + 1 : index + 1;
+  const trendSlice = confidenceHistory.slice(-5);
+  const confidenceTrend = trendSlice.map((entry: any, index: number) => {
+    const quizNumber = confidenceHistory.length - trendSlice.length + index + 1;
     return {
       name: `${t("dashboard.quiz")} ${quizNumber}`,
       rating: entry.rating,

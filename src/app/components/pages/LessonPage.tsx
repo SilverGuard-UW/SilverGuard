@@ -2,27 +2,14 @@ import { useParams, Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
 import { useEffect } from "react";
 
-const exampleData = [
-  { month: "Jan", scams: 150 },
-  { month: "Feb", scams: 180 },
-  { month: "Mar", scams: 220 },
-  { month: "Apr", scams: 190 },
-  { month: "May", scams: 240 },
-  { month: "Jun", scams: 280 },
-];
-
-const successRateData = [
-  { year: "2020", rate: 45 },
-  { year: "2021", rate: 52 },
-  { year: "2022", rate: 61 },
-  { year: "2023", rate: 68 },
-  { year: "2024", rate: 74 },
-  { year: "2025", rate: 81 },
-];
+const lessonImages: Record<string, { src: string; portrait: boolean }> = {
+  "email-phishing": { src: `${import.meta.env.BASE_URL}img/emailScam.PNG`, portrait: false },
+  "phone-scams":    { src: `${import.meta.env.BASE_URL}img/phoneScam.PNG`,  portrait: true  },
+  "social-media-scams": { src: `${import.meta.env.BASE_URL}img/socialScam.PNG`, portrait: true },
+};
 
 const lessonOrder = [
   "what-are-phishing-scams",
@@ -30,25 +17,24 @@ const lessonOrder = [
   "email-phishing",
   "phone-scams",
   "social-media-scams",
-  "reporting-scams",
 ];
 
 export function LessonPage() {
   const { lessonId } = useParams();
   const { t, language } = useAccessibility();
 
-  // Scroll to top when lesson changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [lessonId]);
 
-  // Mark lesson as completed when viewed
   useEffect(() => {
     if (lessonId) {
-      const completedLessons = JSON.parse(localStorage.getItem('silverguard-lessons-completed') || '[]');
+      const user = sessionStorage.getItem('silverguard-current-user') || 'default';
+      const key = `silverguard-lessons-${user}`;
+      const completedLessons = JSON.parse(localStorage.getItem(key) || '[]');
       if (!completedLessons.includes(lessonId)) {
         completedLessons.push(lessonId);
-        localStorage.setItem('silverguard-lessons-completed', JSON.stringify(completedLessons));
+        localStorage.setItem(key, JSON.stringify(completedLessons));
       }
     }
   }, [lessonId]);
@@ -80,7 +66,6 @@ export function LessonPage() {
         t("lessonContent.whatAreScams.keyPoint2"),
         t("lessonContent.whatAreScams.keyPoint3"),
       ],
-      charts: true,
     },
     "avoiding-phishing-scams": {
       title: t("lessonContent.avoidingScams.title"),
@@ -91,7 +76,13 @@ export function LessonPage() {
         },
         {
           heading: t("lessonContent.avoidingScams.section2.heading"),
-          content: t("lessonContent.avoidingScams.section2.content"),
+          list: [
+            t("lessonContent.avoidingScams.section2.item1"),
+            t("lessonContent.avoidingScams.section2.item2"),
+            t("lessonContent.avoidingScams.section2.item3"),
+            t("lessonContent.avoidingScams.section2.item4"),
+            t("lessonContent.avoidingScams.section2.item5"),
+          ],
         },
         {
           heading: t("lessonContent.avoidingScams.section3.heading"),
@@ -103,10 +94,10 @@ export function LessonPage() {
         t("lessonContent.avoidingScams.keyPoint2"),
         t("lessonContent.avoidingScams.keyPoint3"),
       ],
-      charts: true,
     },
     "email-phishing": {
       title: t("lessonContent.emailPhishing.title"),
+      imagePlaceholder: true,
       sections: [
         {
           heading: t("lessonContent.emailPhishing.section1.heading"),
@@ -114,7 +105,12 @@ export function LessonPage() {
         },
         {
           heading: t("lessonContent.emailPhishing.section2.heading"),
-          content: t("lessonContent.emailPhishing.section2.content"),
+          list: [
+            t("lessonContent.emailPhishing.section2.item1"),
+            t("lessonContent.emailPhishing.section2.item2"),
+            t("lessonContent.emailPhishing.section2.item3"),
+            t("lessonContent.emailPhishing.section2.item4"),
+          ],
         },
         {
           heading: t("lessonContent.emailPhishing.section3.heading"),
@@ -126,7 +122,61 @@ export function LessonPage() {
         t("lessonContent.emailPhishing.keyPoint2"),
         t("lessonContent.emailPhishing.keyPoint3"),
       ],
-      charts: false,
+    },
+    "phone-scams": {
+      title: t("lessonContent.phoneScams.title"),
+      imagePlaceholder: true,
+      sections: [
+        {
+          heading: t("lessonContent.phoneScams.section1.heading"),
+          content: t("lessonContent.phoneScams.section1.content"),
+        },
+        {
+          heading: t("lessonContent.phoneScams.section2.heading"),
+          list: [
+            t("lessonContent.phoneScams.section2.item1"),
+            t("lessonContent.phoneScams.section2.item2"),
+            t("lessonContent.phoneScams.section2.item3"),
+            t("lessonContent.phoneScams.section2.item4"),
+          ],
+        },
+        {
+          heading: t("lessonContent.phoneScams.section3.heading"),
+          content: t("lessonContent.phoneScams.section3.content"),
+        },
+      ],
+      keyPoints: [
+        t("lessonContent.phoneScams.keyPoint1"),
+        t("lessonContent.phoneScams.keyPoint2"),
+        t("lessonContent.phoneScams.keyPoint3"),
+      ],
+    },
+    "social-media-scams": {
+      title: t("lessonContent.socialMediaScams.title"),
+      imagePlaceholder: true,
+      sections: [
+        {
+          heading: t("lessonContent.socialMediaScams.section1.heading"),
+          content: t("lessonContent.socialMediaScams.section1.content"),
+        },
+        {
+          heading: t("lessonContent.socialMediaScams.section2.heading"),
+          list: [
+            t("lessonContent.socialMediaScams.section2.item1"),
+            t("lessonContent.socialMediaScams.section2.item2"),
+            t("lessonContent.socialMediaScams.section2.item3"),
+          ],
+        },
+        {
+          heading: t("lessonContent.socialMediaScams.section3.heading"),
+          content: t("lessonContent.socialMediaScams.section3.content"),
+        },
+      ],
+      keyPoints: [
+        t("lessonContent.socialMediaScams.keyPoint1"),
+        t("lessonContent.socialMediaScams.keyPoint2"),
+        t("lessonContent.socialMediaScams.keyPoint3"),
+      ],
     },
   };
 
@@ -148,8 +198,8 @@ export function LessonPage() {
               {t("lessonPage.notFound")}
             </h2>
             <p className="text-2xl text-gray-600 mb-8">
-              {language === "spanish" 
-                ? "Esta lección aún no ha sido creada. ¡Vuelve pronto!" 
+              {language === "spanish"
+                ? "Esta lección aún no ha sido creada. ¡Vuelve pronto!"
                 : "This lesson has not been created yet. Check back soon!"}
             </p>
             <Link to="/education">
@@ -182,48 +232,46 @@ export function LessonPage() {
               <CardTitle className="text-3xl mb-4">{section.heading}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl leading-relaxed text-gray-700">{section.content}</p>
+              {section.list ? (
+                <ul className="space-y-3">
+                  {section.list.map((item: string, i: number) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="text-blue-600 font-bold text-2xl leading-tight mt-0.5">•</span>
+                      <span className="text-2xl leading-relaxed text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-2xl leading-relaxed text-gray-700">{section.content}</p>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Charts Section */}
-      {lesson.charts && (
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">{t("lessonContent.charts.scamsIncreasing")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={exampleData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" style={{ fontSize: '18px' }} />
-                  <YAxis style={{ fontSize: '18px' }} />
-                  <Tooltip contentStyle={{ fontSize: '20px' }} />
-                  <Bar dataKey="scams" fill="#ef4444" />
-                </BarChart>
-              </ResponsiveContainer>
+      {/* Scam Example Image */}
+      {lesson.imagePlaceholder && lessonImages[lessonId as string] && (
+        <div className="mb-12">
+          <Card className="border-4 border-red-400 bg-red-50 mb-4">
+            <CardContent className="py-5 px-6 flex items-start gap-4">
+              <span className="text-4xl flex-shrink-0">⚠️</span>
+              <div>
+                <p className="text-2xl font-bold text-red-700 mb-1">{t("lessonPage.scamExampleLabel")}</p>
+                <p className="text-xl text-red-800">{t("lessonPage.scamExampleWarning")}</p>
+              </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">{t("lessonContent.charts.peopleGettingSmarter")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={successRateData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" style={{ fontSize: '18px' }} />
-                  <YAxis style={{ fontSize: '18px' }} />
-                  <Tooltip contentStyle={{ fontSize: '20px' }} />
-                  <Line type="monotone" dataKey="rate" stroke="#10b981" strokeWidth={3} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <div className={lessonImages[lessonId as string].portrait ? "flex justify-center" : ""}>
+            <img
+              src={lessonImages[lessonId as string].src}
+              alt={t("lessonPage.scamExampleLabel")}
+              className={`rounded-xl border-2 border-gray-300 shadow-md ${
+                lessonImages[lessonId as string].portrait
+                  ? "max-h-[560px] w-auto"
+                  : "w-full"
+              }`}
+            />
+          </div>
         </div>
       )}
 

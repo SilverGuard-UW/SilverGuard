@@ -4,14 +4,21 @@ import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { Slider } from "../ui/slider";
 import { useState, useEffect } from "react";
-import { Type, Eye, Palette, Globe, CheckCircle } from "lucide-react";
+import { Type, Eye, Palette, Globe, CheckCircle, LogOut } from "lucide-react";
+import { useNavigate } from "react-router";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
 
 export function AccessibilitySettings() {
   const { language, setLanguage, textSize, setTextSize, t } = useAccessibility();
+  const navigate = useNavigate();
   const [localTextSize, setLocalTextSize] = useState([textSize]);
   const [highContrast, setHighContrast] = useState(false);
   const [largeButtons, setLargeButtons] = useState(false);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("silverguard-logged-in");
+    navigate("/", { replace: true });
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -194,6 +201,18 @@ export function AccessibilitySettings() {
           </Button>
           <Button size="lg" variant="outline" className="flex-1 text-2xl h-auto py-8 rounded-xl">
             {t("settings.reset")}
+          </Button>
+        </div>
+
+        {/* Logout Button */}
+        <div className="flex justify-center pb-4">
+          <Button
+            size="lg"
+            onClick={handleLogout}
+            className="text-2xl h-auto py-8 px-16 rounded-xl bg-red-600 hover:bg-red-700 text-white border-4 border-red-800"
+          >
+            <LogOut className="h-8 w-8 mr-3" />
+            {t("settings.logout")}
           </Button>
         </div>
       </div>

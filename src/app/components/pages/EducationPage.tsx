@@ -15,7 +15,8 @@ export function EducationPage() {
 
   useEffect(() => {
     // Load completed lessons from localStorage
-    const completed = JSON.parse(localStorage.getItem('silverguard-lessons-completed') || '[]');
+    const user = sessionStorage.getItem('silverguard-current-user') || 'default';
+    const completed = JSON.parse(localStorage.getItem(`silverguard-lessons-${user}`) || '[]');
     setCompletedLessons(completed);
   }, []);
   
@@ -24,52 +25,42 @@ export function EducationPage() {
       id: "what-are-phishing-scams",
       title: t("lesson.whatAreScams"),
       description: t("lesson.whatAreScamsDesc"),
-      duration: "10 " + t("lesson.duration"),
+      duration: "3 " + t("lesson.duration"),
       completed: completedLessons.includes("what-are-phishing-scams"),
     },
     {
       id: "avoiding-phishing-scams",
       title: t("lesson.avoidingScams"),
       description: t("lesson.avoidingScamsDesc"),
-      duration: "12 " + t("lesson.duration"),
+      duration: "4 " + t("lesson.duration"),
       completed: completedLessons.includes("avoiding-phishing-scams"),
     },
     {
       id: "email-phishing",
       title: t("lesson.emailScams"),
       description: t("lesson.emailScamsDesc"),
-      duration: "15 " + t("lesson.duration"),
+      duration: "5 " + t("lesson.duration"),
       completed: completedLessons.includes("email-phishing"),
     },
     {
       id: "phone-scams",
       title: t("lesson.phoneScams"),
       description: t("lesson.phoneScamsDesc"),
-      duration: "10 " + t("lesson.duration"),
-      completed: false,
+      duration: "5 " + t("lesson.duration"),
+      completed: completedLessons.includes("phone-scams"),
     },
     {
       id: "social-media-scams",
       title: t("lesson.socialMedia"),
       description: t("lesson.socialMediaDesc"),
-      duration: "12 " + t("lesson.duration"),
-      completed: false,
-    },
-    {
-      id: "reporting-scams",
-      title: t("lesson.reportingScams"),
-      description: t("lesson.reportingScamsDesc"),
-      duration: "8 " + t("lesson.duration"),
-      completed: false,
+      duration: "5 " + t("lesson.duration"),
+      completed: completedLessons.includes("social-media-scams"),
     },
   ];
   
-  const completedCount = lessons.filter(l => l.completed).length;
-  const progressPercent = (completedCount / lessons.length) * 100;
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-12">
+      <div className="mb-12 text-center">
         <h1 className="text-5xl mb-4">{t("education.title")}</h1>
       </div>
 
@@ -89,17 +80,17 @@ export function EducationPage() {
       </Card>
 
       {/* Lessons Section */}
-      <div className="mb-8">
+      <div className="mb-8 text-center">
         <h2 className="text-4xl">{t("education.lessonsTitle")}</h2>
       </div>
 
-      {/* Lessons Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {lessons.map((lesson) => (
+      {/* Lessons Grid: 3 cards row 1, 2 cards centered row 2 */}
+      <div className="grid grid-cols-6 gap-8">
+        {lessons.map((lesson, index) => (
           <Link
             key={lesson.id}
             to={`/education/${lesson.id}`}
-            className="block"
+            className={`col-span-6 md:col-span-2 block ${index === 3 ? 'md:col-start-2' : ''}`}
           >
             <Card className={`h-full transition-all hover:shadow-lg hover:scale-105 cursor-pointer ${
               lesson.completed

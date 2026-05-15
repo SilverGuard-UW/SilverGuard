@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { AlertTriangle, CheckCircle, XCircle, Mail, MessageSquare, Phone, Smartphone } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Phone } from "lucide-react";
 import { Progress } from "../ui/progress";
 import { Volume2 } from "lucide-react";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
@@ -117,14 +118,16 @@ export function PhishingSimulator() {
   const handleConfidenceSubmit = () => {
     if (confidenceRating !== null) {
       // Save confidence rating to localStorage
-      const confidenceHistory = JSON.parse(localStorage.getItem('silverguard-confidence') || '[]');
+      const user = sessionStorage.getItem('silverguard-current-user') || 'default';
+      const confidenceKey = `silverguard-confidence-${user}`;
+      const confidenceHistory = JSON.parse(localStorage.getItem(confidenceKey) || '[]');
       confidenceHistory.push({
         rating: confidenceRating,
         score: score,
         totalQuestions: scenarios.length,
         date: new Date().toISOString(),
       });
-      localStorage.setItem('silverguard-confidence', JSON.stringify(confidenceHistory));
+      localStorage.setItem(confidenceKey, JSON.stringify(confidenceHistory));
       
       setCompleted(true);
     }
@@ -140,18 +143,6 @@ export function PhishingSimulator() {
     setShowConfidenceScreen(false);
   };
 
-  const getIcon = () => {
-    switch (scenario.type) {
-      case "email":
-        return <Mail className="h-12 w-12 text-blue-600" />;
-      case "sms":
-        return <MessageSquare className="h-12 w-12 text-green-600" />;
-      case "phone":
-        return <Phone className="h-12 w-12 text-purple-600" />;
-      default:
-        return <Smartphone className="h-12 w-12 text-gray-600" />;
-    }
-  };
 
   if (completed) {
     const percentage = (score / scenarios.length) * 100;
@@ -201,7 +192,7 @@ export function PhishingSimulator() {
               ) : (
                 <>
                   <p className="text-2xl leading-relaxed">
-                    {t("simulator.keepLearning")}
+                    {t("simulator.keepLearningMsg")}
                   </p>
                   <div className="bg-white p-6 rounded-lg border border-yellow-200">
                     <h4 className="text-2xl mb-4">{t("simulator.tips")}</h4>
@@ -220,12 +211,16 @@ export function PhishingSimulator() {
               <Button size="lg" onClick={handleRestart} className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-blue-600 hover:bg-blue-700 text-white border-4 border-blue-800">
                 {t("simulator.retakeQuiz")}
               </Button>
-              <Button size="lg" onClick={() => window.location.href = "/education"} className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-green-600 hover:bg-green-700 text-white border-4 border-green-800">
-                {t("simulator.keepLearning")}
-              </Button>
-              <Button size="lg" onClick={() => window.location.href = "/dashboard"} className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-purple-600 hover:bg-purple-700 text-white border-4 border-purple-800">
-                {t("simulator.trackProgress")}
-              </Button>
+              <Link to="/education" className="block">
+                <Button size="lg" className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-green-600 hover:bg-green-700 text-white border-4 border-green-800">
+                  {t("simulator.keepLearning")}
+                </Button>
+              </Link>
+              <Link to="/dashboard" className="block">
+                <Button size="lg" className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-purple-600 hover:bg-purple-700 text-white border-4 border-purple-800">
+                  {t("simulator.trackProgress")}
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
