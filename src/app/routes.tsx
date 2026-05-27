@@ -38,6 +38,6 @@ export const router = createBrowserRouter(
     },
   ],
   {
-    basename: "/SilverGuard",
+    //basename: "/SilverGuard",
   }
 );

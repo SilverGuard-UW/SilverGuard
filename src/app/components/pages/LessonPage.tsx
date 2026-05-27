@@ -2,27 +2,17 @@ import { useParams, Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useEffect } from "react";
+import { doc, setDoc, arrayUnion } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
 
-const exampleData = [
-  { month: "Jan", scams: 150 },
-  { month: "Feb", scams: 180 },
-  { month: "Mar", scams: 220 },
-  { month: "Apr", scams: 190 },
-  { month: "May", scams: 240 },
-  { month: "Jun", scams: 280 },
-];
-
-const successRateData = [
-  { year: "2020", rate: 45 },
-  { year: "2021", rate: 52 },
-  { year: "2022", rate: 61 },
-  { year: "2023", rate: 68 },
-  { year: "2024", rate: 74 },
-  { year: "2025", rate: 81 },
-];
+const lessonImages: Record<string, { src: string; portrait: boolean }> = {
+  "email-phishing": { src: `${import.meta.env.BASE_URL}img/emailScam.PNG`, portrait: false },
+  "phone-scams":    { src: `${import.meta.env.BASE_URL}img/phoneScam.PNG`,  portrait: true  },
+  "social-media-scams": { src: `${import.meta.env.BASE_URL}img/socialScam.PNG`, portrait: true },
+};
 
 const lessonOrder = [
   "what-are-phishing-scams",
@@ -30,33 +20,34 @@ const lessonOrder = [
   "email-phishing",
   "phone-scams",
   "social-media-scams",
-  "reporting-scams",
 ];
 
 export function LessonPage() {
   const { lessonId } = useParams();
   const { t, language } = useAccessibility();
+  const { user } = useAuth();
 
-  // Scroll to top when lesson changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [lessonId]);
 
-  // Mark lesson as completed when viewed
+  // Mark lesson as completed in Firestore
   useEffect(() => {
-    if (lessonId) {
-      const completedLessons = JSON.parse(localStorage.getItem('silverguard-lessons-completed') || '[]');
-      if (!completedLessons.includes(lessonId)) {
-        completedLessons.push(lessonId);
-        localStorage.setItem('silverguard-lessons-completed', JSON.stringify(completedLessons));
-      }
+    if (lessonId && user) {
+      const userDoc = doc(db, "users", user.uid);
+      setDoc(
+        userDoc,
+        { completedLessons: arrayUnion(lessonId) },
+        { merge: true }
+      ).catch(console.error);
     }
-  }, [lessonId]);
+  }, [lessonId, user]);
 
   const currentIndex = lessonOrder.indexOf(lessonId as string);
-  const nextLessonId = currentIndex >= 0 && currentIndex < lessonOrder.length - 1
-    ? lessonOrder[currentIndex + 1]
-    : null;
+  const nextLessonId =
+    currentIndex >= 0 && currentIndex < lessonOrder.length - 1
+      ? lessonOrder[currentIndex + 1]
+      : null;
 
   const lessonContent: Record<string, any> = {
     "what-are-phishing-scams": {
@@ -80,7 +71,6 @@ export function LessonPage() {
         t("lessonContent.whatAreScams.keyPoint2"),
         t("lessonContent.whatAreScams.keyPoint3"),
       ],
-      charts: true,
     },
     "avoiding-phishing-scams": {
       title: t("lessonContent.avoidingScams.title"),
@@ -91,7 +81,13 @@ export function LessonPage() {
         },
         {
           heading: t("lessonContent.avoidingScams.section2.heading"),
-          content: t("lessonContent.avoidingScams.section2.content"),
+          list: [
+            t("lessonContent.avoidingScams.section2.item1"),
+            t("lessonContent.avoidingScams.section2.item2"),
+            t("lessonContent.avoidingScams.section2.item3"),
+            t("lessonContent.avoidingScams.section2.item4"),
+            t("lessonContent.avoidingScams.section2.item5"),
+          ],
         },
         {
           heading: t("lessonContent.avoidingScams.section3.heading"),
@@ -103,10 +99,10 @@ export function LessonPage() {
         t("lessonContent.avoidingScams.keyPoint2"),
         t("lessonContent.avoidingScams.keyPoint3"),
       ],
-      charts: true,
     },
     "email-phishing": {
       title: t("lessonContent.emailPhishing.title"),
+      imagePlaceholder: true,
       sections: [
         {
           heading: t("lessonContent.emailPhishing.section1.heading"),
@@ -114,7 +110,12 @@ export function LessonPage() {
         },
         {
           heading: t("lessonContent.emailPhishing.section2.heading"),
-          content: t("lessonContent.emailPhishing.section2.content"),
+          list: [
+            t("lessonContent.emailPhishing.section2.item1"),
+            t("lessonContent.emailPhishing.section2.item2"),
+            t("lessonContent.emailPhishing.section2.item3"),
+            t("lessonContent.emailPhishing.section2.item4"),
+          ],
         },
         {
           heading: t("lessonContent.emailPhishing.section3.heading"),
@@ -126,7 +127,61 @@ export function LessonPage() {
         t("lessonContent.emailPhishing.keyPoint2"),
         t("lessonContent.emailPhishing.keyPoint3"),
       ],
-      charts: false,
+    },
+    "phone-scams": {
+      title: t("lessonContent.phoneScams.title"),
+      imagePlaceholder: true,
+      sections: [
+        {
+          heading: t("lessonContent.phoneScams.section1.heading"),
+          content: t("lessonContent.phoneScams.section1.content"),
+        },
+        {
+          heading: t("lessonContent.phoneScams.section2.heading"),
+          list: [
+            t("lessonContent.phoneScams.section2.item1"),
+            t("lessonContent.phoneScams.section2.item2"),
+            t("lessonContent.phoneScams.section2.item3"),
+            t("lessonContent.phoneScams.section2.item4"),
+          ],
+        },
+        {
+          heading: t("lessonContent.phoneScams.section3.heading"),
+          content: t("lessonContent.phoneScams.section3.content"),
+        },
+      ],
+      keyPoints: [
+        t("lessonContent.phoneScams.keyPoint1"),
+        t("lessonContent.phoneScams.keyPoint2"),
+        t("lessonContent.phoneScams.keyPoint3"),
+      ],
+    },
+    "social-media-scams": {
+      title: t("lessonContent.socialMediaScams.title"),
+      imagePlaceholder: true,
+      sections: [
+        {
+          heading: t("lessonContent.socialMediaScams.section1.heading"),
+          content: t("lessonContent.socialMediaScams.section1.content"),
+        },
+        {
+          heading: t("lessonContent.socialMediaScams.section2.heading"),
+          list: [
+            t("lessonContent.socialMediaScams.section2.item1"),
+            t("lessonContent.socialMediaScams.section2.item2"),
+            t("lessonContent.socialMediaScams.section2.item3"),
+          ],
+        },
+        {
+          heading: t("lessonContent.socialMediaScams.section3.heading"),
+          content: t("lessonContent.socialMediaScams.section3.content"),
+        },
+      ],
+      keyPoints: [
+        t("lessonContent.socialMediaScams.keyPoint1"),
+        t("lessonContent.socialMediaScams.keyPoint2"),
+        t("lessonContent.socialMediaScams.keyPoint3"),
+      ],
     },
   };
 
@@ -144,12 +199,10 @@ export function LessonPage() {
         <Card className="bg-yellow-50 border-yellow-200">
           <CardContent className="pt-12 pb-12 text-center">
             <div className="text-6xl mb-6">🚧</div>
-            <h2 className="text-4xl mb-4">
-              {t("lessonPage.notFound")}
-            </h2>
+            <h2 className="text-4xl mb-4">{t("lessonPage.notFound")}</h2>
             <p className="text-2xl text-gray-600 mb-8">
-              {language === "spanish" 
-                ? "Esta lección aún no ha sido creada. ¡Vuelve pronto!" 
+              {language === "spanish"
+                ? "Esta lección aún no ha sido creada. ¡Vuelve pronto!"
                 : "This lesson has not been created yet. Check back soon!"}
             </p>
             <Link to="/education">
@@ -163,7 +216,6 @@ export function LessonPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Header */}
       <div className="mb-8">
         <Link to="/education">
           <Button variant="ghost" className="mb-6 text-2xl px-6 py-6 h-auto">
@@ -174,7 +226,6 @@ export function LessonPage() {
         <h1 className="text-5xl mb-6">{lesson.title}</h1>
       </div>
 
-      {/* Content Sections */}
       <div className="space-y-8 mb-12">
         {lesson.sections.map((section: any, index: number) => (
           <Card key={index}>
@@ -182,52 +233,48 @@ export function LessonPage() {
               <CardTitle className="text-3xl mb-4">{section.heading}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl leading-relaxed text-gray-700">{section.content}</p>
+              {section.list ? (
+                <ul className="space-y-3">
+                  {section.list.map((item: string, i: number) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="text-blue-600 font-bold text-2xl leading-tight mt-0.5">•</span>
+                      <span className="text-2xl leading-relaxed text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-2xl leading-relaxed text-gray-700">{section.content}</p>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Charts Section */}
-      {lesson.charts && (
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">{t("lessonContent.charts.scamsIncreasing")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={exampleData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" style={{ fontSize: '18px' }} />
-                  <YAxis style={{ fontSize: '18px' }} />
-                  <Tooltip contentStyle={{ fontSize: '20px' }} />
-                  <Bar dataKey="scams" fill="#ef4444" />
-                </BarChart>
-              </ResponsiveContainer>
+      {lesson.imagePlaceholder && lessonImages[lessonId as string] && (
+        <div className="mb-12">
+          <Card className="border-4 border-red-400 bg-red-50 mb-4">
+            <CardContent className="py-5 px-6 flex items-start gap-4">
+              <span className="text-4xl flex-shrink-0">⚠️</span>
+              <div>
+                <p className="text-2xl font-bold text-red-700 mb-1">{t("lessonPage.scamExampleLabel")}</p>
+                <p className="text-xl text-red-800">{t("lessonPage.scamExampleWarning")}</p>
+              </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">{t("lessonContent.charts.peopleGettingSmarter")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={successRateData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" style={{ fontSize: '18px' }} />
-                  <YAxis style={{ fontSize: '18px' }} />
-                  <Tooltip contentStyle={{ fontSize: '20px' }} />
-                  <Line type="monotone" dataKey="rate" stroke="#10b981" strokeWidth={3} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <div className={lessonImages[lessonId as string].portrait ? "flex justify-center" : ""}>
+            <img
+              src={lessonImages[lessonId as string].src}
+              alt={t("lessonPage.scamExampleLabel")}
+              className={`rounded-xl border-2 border-gray-300 shadow-md ${
+                lessonImages[lessonId as string].portrait
+                  ? "max-h-[560px] w-auto"
+                  : "w-full"
+              }`}
+            />
+          </div>
         </div>
       )}
 
-      {/* Key Points */}
       <Card className="bg-blue-50 border-blue-200 mb-8">
         <CardHeader>
           <CardTitle className="text-3xl text-center">{t("lessonPage.keyPoints")}</CardTitle>
@@ -246,7 +293,6 @@ export function LessonPage() {
         </CardContent>
       </Card>
 
-      {/* Completion Card */}
       <Card className="bg-green-50 border-green-200 border-4">
         <CardContent className="pt-8">
           <div className="flex items-center gap-6 mb-8">
@@ -262,10 +308,7 @@ export function LessonPage() {
             {nextLessonId ? (
               <>
                 <Link to={`/education/${nextLessonId}`}>
-                  <Button
-                    size="lg"
-                    className="w-full text-3xl h-auto py-10 rounded-2xl shadow-2xl bg-blue-600 hover:bg-blue-700 text-white border-4 border-blue-800 transform transition-transform hover:scale-105"
-                  >
+                  <Button size="lg" className="w-full text-3xl h-auto py-10 rounded-2xl shadow-2xl bg-blue-600 hover:bg-blue-700 text-white border-4 border-blue-800 transform transition-transform hover:scale-105">
                     <span className="mr-4">▶</span>
                     {t("lessonPage.nextLesson")}
                     <ArrowRight className="h-9 w-9 ml-4" strokeWidth={3} />
@@ -277,21 +320,14 @@ export function LessonPage() {
               </>
             ) : null}
             <Link to="/simulator">
-              <Button
-                size="lg"
-                className="w-full text-3xl h-auto py-10 rounded-2xl shadow-2xl bg-orange-600 hover:bg-orange-700 text-white border-4 border-orange-800 transform transition-transform hover:scale-105"
-              >
+              <Button size="lg" className="w-full text-3xl h-auto py-10 rounded-2xl shadow-2xl bg-orange-600 hover:bg-orange-700 text-white border-4 border-orange-800 transform transition-transform hover:scale-105">
                 <span className="mr-4">✓</span>
                 {t("lessonPage.testYourself")}
               </Button>
             </Link>
             <div className="py-6"></div>
             <Link to="/education">
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full text-2xl h-auto py-6 rounded-xl border-2 border-gray-400 hover:bg-gray-100"
-              >
+              <Button variant="outline" size="lg" className="w-full text-2xl h-auto py-6 rounded-xl border-2 border-gray-400 hover:bg-gray-100">
                 <ArrowLeft className="h-7 w-7 mr-3" />
                 {t("lessonPage.backToLessons")}
               </Button>

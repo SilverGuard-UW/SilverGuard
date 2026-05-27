@@ -6,6 +6,7 @@ interface AccessibilityContextType {
   textSize: number;
   setTextSize: (size: number) => void;
   t: (key: string) => string;
+  reloadForUser: () => Promise<void>;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -102,8 +103,6 @@ const translations = {
     "lesson.phoneScamsDesc": "Avoid phone tricks",
     "lesson.socialMedia": "Social Media",
     "lesson.socialMediaDesc": "Stay safe online",
-    "lesson.reportingScams": "Report Scams",
-    "lesson.reportingScamsDesc": "What to do if scammed",
     "lesson.duration": "min",
     "lesson.done": "Done",
     "lesson.locked": "Locked",
@@ -160,7 +159,7 @@ const translations = {
     "simulator.great": "Great!",
     "simulator.goodTry": "Good Try!",
     "simulator.excellentSpotting": "Excellent! You're spotting scams well.",
-    "simulator.keepLearning": "Keep learning! Review the lessons again.",
+    "simulator.keepLearningMsg": "Keep learning! Review the lessons again.",
     "simulator.remember": "Remember:",
     "simulator.verifySenders": "Verify senders first",
     "simulator.watchUrgent": "Watch for urgent messages",
@@ -241,7 +240,7 @@ const translations = {
     "help.suspiciousMessageDesc": "Don't click anything! Get help now.",
     "help.askForHelp": "Ask for Help",
     "help.notSure": "Not Sure?",
-    "help.notSureDesc": "Always better to ask first.",
+    "help.notSureDesc": "Always better to ask a trusted individual first.",
     "help.contactSupport": "Contact Support",
     "help.alreadyShared": "Already Shared Info?",
     "help.alreadySharedDesc": "Act quickly! Call your bank.",
@@ -278,6 +277,8 @@ const translations = {
     "help.nephew": "Nephew",
     
     // Lesson Page
+    "lessonPage.scamExampleLabel": "Example of a real scam",
+    "lessonPage.scamExampleWarning": "This is what a real scam looks like. Be cautious if you see something similar on your own device.",
     "lessonPage.back": "Back",
     "lessonPage.complete": "Lesson Complete!",
     "lessonPage.greatJob": "Great job learning",
@@ -290,39 +291,75 @@ const translations = {
     
     // Lesson Content - What Are Scams
     "lessonContent.whatAreScams.title": "What Are Scams?",
-    "lessonContent.whatAreScams.section1.heading": "Understanding Phishing",
-    "lessonContent.whatAreScams.section1.content": "Phishing scams trick you into sharing passwords, credit card numbers, or bank details. Scammers pretend to be someone you trust.",
-    "lessonContent.whatAreScams.section2.heading": "Why Scammers Target You",
-    "lessonContent.whatAreScams.section2.content": "They target seniors because you may have savings and be more trusting. Knowing their tricks helps you stay safe.",
-    "lessonContent.whatAreScams.section3.heading": "Warning Signs",
-    "lessonContent.whatAreScams.section3.content": "Look for urgent language, requests for personal information, suspicious email addresses, and offers that seem too good to be true.",
-    "lessonContent.whatAreScams.keyPoint1": "Scammers pretend to be people you trust",
-    "lessonContent.whatAreScams.keyPoint2": "Watch for urgent requests and too-good offers",
-    "lessonContent.whatAreScams.keyPoint3": "Never share passwords or bank details",
-    
+    "lessonContent.whatAreScams.section1.heading": "What Is a Scam?",
+    "lessonContent.whatAreScams.section1.content": "A scam is when someone lies or tricks you to steal your money or personal information.",
+    "lessonContent.whatAreScams.section2.heading": "What Is Phishing?",
+    "lessonContent.whatAreScams.section2.content": "Phishing is when scammers pretend to be a trusted company like your bank to trick you into giving them your information.",
+    "lessonContent.whatAreScams.section3.heading": "How Scammers Trick You",
+    "lessonContent.whatAreScams.section3.content": "Scammers use fear, urgency, or claims like \"you won a prize\" to make you act fast without thinking.",
+    "lessonContent.whatAreScams.keyPoint1": "A scam is a trick to steal your money or personal information",
+    "lessonContent.whatAreScams.keyPoint2": "Phishing means scammers pretend to be someone you trust, like your bank",
+    "lessonContent.whatAreScams.keyPoint3": "Watch out for urgency and pressure — always slow down and verify",
+
     // Lesson Content - Avoiding Scams
-    "lessonContent.avoidingScams.title": "Avoiding Scams",
-    "lessonContent.avoidingScams.section1.heading": "Spot the Red Flags",
-    "lessonContent.avoidingScams.section1.content": "Urgent requests, threats of account closure, requests for passwords, unexpected prizes, or unknown senders asking for money.",
-    "lessonContent.avoidingScams.section2.heading": "Stay Safe",
-    "lessonContent.avoidingScams.section2.content": "Never click suspicious links. Verify who's contacting you. Keep software updated. Use strong passwords. Turn on two-factor authentication.",
-    "lessonContent.avoidingScams.section3.heading": "If You're Contacted",
-    "lessonContent.avoidingScams.section3.content": "Don't respond. Don't click links. Report the message. Contact your bank if you shared financial info. Tell family or friends.",
-    "lessonContent.avoidingScams.keyPoint1": "Never click suspicious links",
-    "lessonContent.avoidingScams.keyPoint2": "Always verify who's contacting you",
-    "lessonContent.avoidingScams.keyPoint3": "Use strong passwords and two-factor authentication",
-    
+    "lessonContent.avoidingScams.title": "How to Avoid Scams",
+    "lessonContent.avoidingScams.section1.heading": "Key Habit to Stay Safe",
+    "lessonContent.avoidingScams.section1.content": "Always verify before you trust — contact companies directly through their official website, never through a link in a message.",
+    "lessonContent.avoidingScams.section2.heading": "Red Flags to Watch For",
+    "lessonContent.avoidingScams.section2.item1": "Pressure to act immediately",
+    "lessonContent.avoidingScams.section2.item2": "Requests for codes, passwords, or payments",
+    "lessonContent.avoidingScams.section2.item3": "Offers that sound too good to be true",
+    "lessonContent.avoidingScams.section2.item4": "Messages from unknown senders",
+    "lessonContent.avoidingScams.section2.item5": "Requests to buy gift cards or send money",
+    "lessonContent.avoidingScams.section3.heading": "What to Do When You Spot a Scam",
+    "lessonContent.avoidingScams.section3.content": "Do not respond or click anything — block the sender, delete the message, and tell a trusted person.",
+    "lessonContent.avoidingScams.keyPoint1": "Verify the source — contact companies directly, never through the message",
+    "lessonContent.avoidingScams.keyPoint2": "Never share passwords or personal information unless you started the contact",
+    "lessonContent.avoidingScams.keyPoint3": "Slow down — scammers create urgency on purpose",
+
     // Lesson Content - Email Phishing
     "lessonContent.emailPhishing.title": "Email Scams",
-    "lessonContent.emailPhishing.section1.heading": "Fake Email Signs",
-    "lessonContent.emailPhishing.section1.content": "Suspicious sender addresses, generic greetings, urgent subject lines, links to fake websites, and requests for personal information.",
-    "lessonContent.emailPhishing.section2.heading": "Real vs. Fake",
-    "lessonContent.emailPhishing.section2.content": "Real companies use professional email addresses, personalized greetings with your name, and don't threaten account closure or ask for passwords.",
-    "lessonContent.emailPhishing.section3.heading": "How to Protect Yourself",
-    "lessonContent.emailPhishing.section3.content": "Turn on spam filters. Never reply to suspicious emails. Contact companies directly. Report phishing. Delete suspicious emails.",
-    "lessonContent.emailPhishing.keyPoint1": "Check sender address carefully",
-    "lessonContent.emailPhishing.keyPoint2": "Real companies won't ask for passwords",
-    "lessonContent.emailPhishing.keyPoint3": "When in doubt, contact company directly",
+    "lessonContent.emailPhishing.section1.heading": "Safe Email Habits",
+    "lessonContent.emailPhishing.section1.content": "Never click links in suspicious emails — go directly to the company's website by typing it yourself.",
+    "lessonContent.emailPhishing.section2.heading": "Warning Signs",
+    "lessonContent.emailPhishing.section2.item1": "Senders you don't recognize",
+    "lessonContent.emailPhishing.section2.item2": "Urgent subject lines",
+    "lessonContent.emailPhishing.section2.item3": "Generic greetings like \"Dear Customer\"",
+    "lessonContent.emailPhishing.section2.item4": "Requests for passwords or personal information",
+    "lessonContent.emailPhishing.section3.heading": "When in Doubt",
+    "lessonContent.emailPhishing.section3.content": "Do not reply — call the company using the number on their official website, not from the email.",
+    "lessonContent.emailPhishing.keyPoint1": "Never click links in emails from unknown or suspicious senders",
+    "lessonContent.emailPhishing.keyPoint2": "Check the full sender email address for small differences",
+    "lessonContent.emailPhishing.keyPoint3": "When in doubt, contact the company directly",
+
+    // Lesson Content - Phone Scams
+    "lessonContent.phoneScams.title": "Phone Scams",
+    "lessonContent.phoneScams.section1.heading": "What Is Phone Phishing?",
+    "lessonContent.phoneScams.section1.content": "Scammers call or text pretending to be your bank, government, or tech support to steal your personal information.",
+    "lessonContent.phoneScams.section2.heading": "Red Flags",
+    "lessonContent.phoneScams.section2.item1": "Urgent threats like \"your account will be locked\"",
+    "lessonContent.phoneScams.section2.item2": "Requests for codes, passwords, or payments",
+    "lessonContent.phoneScams.section2.item3": "Calls or texts from unknown numbers",
+    "lessonContent.phoneScams.section2.item4": "Requests to buy gift cards or wire money",
+    "lessonContent.phoneScams.section3.heading": "What to Do",
+    "lessonContent.phoneScams.section3.content": "Hang up on suspicious calls and never share personal information — call back on the official number if you're unsure.",
+    "lessonContent.phoneScams.keyPoint1": "Never give personal information or codes over the phone unless you made the call",
+    "lessonContent.phoneScams.keyPoint2": "Hang up on suspicious calls — always call back on the official number",
+    "lessonContent.phoneScams.keyPoint3": "Do not click links in text messages from unknown numbers",
+
+    // Lesson Content - Social Media Scams
+    "lessonContent.socialMediaScams.title": "Social Media Scams",
+    "lessonContent.socialMediaScams.section1.heading": "What Are Social Media Scams?",
+    "lessonContent.socialMediaScams.section1.content": "Scammers use platforms like Facebook to impersonate friends or companies and trick you into sharing information or money.",
+    "lessonContent.socialMediaScams.section2.heading": "Warning Signs",
+    "lessonContent.socialMediaScams.section2.item1": "Messages asking for money — even from someone you know",
+    "lessonContent.socialMediaScams.section2.item2": "Accounts with few photos or recently created profiles",
+    "lessonContent.socialMediaScams.section2.item3": "Links to prizes, deals, or urgent requests",
+    "lessonContent.socialMediaScams.section3.heading": "How to Stay Safe",
+    "lessonContent.socialMediaScams.section3.content": "Never send money or share personal information through social media — if something seems off, call the person directly.",
+    "lessonContent.socialMediaScams.keyPoint1": "Never send money or share personal information through social media",
+    "lessonContent.socialMediaScams.keyPoint2": "If a message seems off — even from a friend — call them directly",
+    "lessonContent.socialMediaScams.keyPoint3": "Be cautious of links, prizes, and urgent requests on any platform",
     
     // Lesson Content - Charts
     "lessonContent.charts.scamsIncreasing": "Scams Increasing",
@@ -415,8 +452,6 @@ const translations = {
     "lesson.phoneScamsDesc": "Evite trucos telefónicos",
     "lesson.socialMedia": "Redes Sociales",
     "lesson.socialMediaDesc": "Manténgase seguro en línea",
-    "lesson.reportingScams": "Reportar Estafas",
-    "lesson.reportingScamsDesc": "Qué hacer si fue estafado",
     "lesson.duration": "min",
     "lesson.done": "Hecho",
     "lesson.locked": "Bloqueado",
@@ -473,7 +508,7 @@ const translations = {
     "simulator.great": "¡Excelente trabajo!",
     "simulator.goodTry": "¡Buen intento!",
     "simulator.excellentSpotting": "¡Excelente! Estás identificando estafas bien.",
-    "simulator.keepLearning": "¡Sigue aprendiendo! Revisa las lecciones nuevamente.",
+    "simulator.keepLearningMsg": "¡Sigue aprendiendo! Revisa las lecciones nuevamente.",
     "simulator.remember": "Recuerda:",
     "simulator.verifySenders": "Verifica a los remitentes primero",
     "simulator.watchUrgent": "Observa mensajes urgentes",
@@ -591,6 +626,8 @@ const translations = {
     "help.nephew": "Sobrino",
     
     // Lesson Page
+    "lessonPage.scamExampleLabel": "Ejemplo de una estafa real",
+    "lessonPage.scamExampleWarning": "Así es como se ve una estafa real. Tenga cuidado si ve algo similar en su propio dispositivo.",
     "lessonPage.back": "Atrás",
     "lessonPage.complete": "¡Lección Completa!",
     "lessonPage.greatJob": "Excelente trabajo aprendiendo",
@@ -603,39 +640,75 @@ const translations = {
     
     // Lesson Content - What Are Scams
     "lessonContent.whatAreScams.title": "¿Qué Son las Estafas?",
-    "lessonContent.whatAreScams.section1.heading": "Entendiendo el Phishing",
-    "lessonContent.whatAreScams.section1.content": "Las estafas de phishing te engañan para que compartas contraseñas, números de tarjetas de crédito o detalles bancarios. Los estafadores se hacen pasar por alguien que confías.",
-    "lessonContent.whatAreScams.section2.heading": "¿Por Qué los Estafadores Te Dirigen",
-    "lessonContent.whatAreScams.section2.content": "Te dirigen a los mayores porque podrías tener ahorros y ser más confiable. Conocer sus trucos te ayuda a mantenerte seguro.",
-    "lessonContent.whatAreScams.section3.heading": "Signos de Advertencia",
-    "lessonContent.whatAreScams.section3.content": "Busca lenguaje urgente, solicitudes de información personal, direcciones de correo electrónico sospechosas y ofertas que parecen demasiado buenas para ser ciertas.",
-    "lessonContent.whatAreScams.keyPoint1": "Los estafadores se hacen pasar por personas que confías",
-    "lessonContent.whatAreScams.keyPoint2": "Cuidado con solicitudes urgentes y ofertas muy buenas",
-    "lessonContent.whatAreScams.keyPoint3": "Nunca comparta contraseñas o detalles bancarios",
-    
+    "lessonContent.whatAreScams.section1.heading": "¿Qué Es una Estafa?",
+    "lessonContent.whatAreScams.section1.content": "Una estafa es cuando alguien miente o engaña para robar su dinero o información personal.",
+    "lessonContent.whatAreScams.section2.heading": "¿Qué Es el Phishing?",
+    "lessonContent.whatAreScams.section2.content": "El phishing es cuando los estafadores fingen ser una empresa de confianza como su banco para robarle su información.",
+    "lessonContent.whatAreScams.section3.heading": "Cómo los Estafadores le Engañan",
+    "lessonContent.whatAreScams.section3.content": "Los estafadores usan miedo, urgencia o afirmaciones como \"ganó un premio\" para hacerle actuar rápido sin pensar.",
+    "lessonContent.whatAreScams.keyPoint1": "Una estafa es un truco para robar su dinero o información personal",
+    "lessonContent.whatAreScams.keyPoint2": "Phishing significa que los estafadores fingen ser alguien de confianza, como su banco",
+    "lessonContent.whatAreScams.keyPoint3": "Tenga cuidado con la urgencia y presión — siempre deténgase y verifique",
+
     // Lesson Content - Avoiding Scams
-    "lessonContent.avoidingScams.title": "Evitar Estafas",
-    "lessonContent.avoidingScams.section1.heading": "Detectar las Alertas",
-    "lessonContent.avoidingScams.section1.content": "Solicitudes urgentes, amenazas de cierre de cuenta, solicitudes de contraseñas, premios inesperados o remitentes desconocidos que piden dinero.",
-    "lessonContent.avoidingScams.section2.heading": "Mantente Seguro",
-    "lessonContent.avoidingScams.section2.content": "Nunca hagas clic en enlaces sospechosos. Verifica quién te está contactando. Mantén actualizado el software. Usa contraseñas fuertes. Activa la autenticación de dos factores.",
-    "lessonContent.avoidingScams.section3.heading": "Si Te Contactan",
-    "lessonContent.avoidingScams.section3.content": "No responda. No hagas clic en enlaces. Reporta el mensaje. Contacta a tu banco si compartiste información financiera. Dile a familiares o amigos.",
-    "lessonContent.avoidingScams.keyPoint1": "Nunca hagas clic en enlaces sospechosos",
-    "lessonContent.avoidingScams.keyPoint2": "Siempre verifica quién te contacta",
-    "lessonContent.avoidingScams.keyPoint3": "Usa contraseñas fuertes y autenticación de dos factores",
+    "lessonContent.avoidingScams.title": "Cómo Evitar Estafas",
+    "lessonContent.avoidingScams.section1.heading": "Hábito Clave para Mantenerse Seguro",
+    "lessonContent.avoidingScams.section1.content": "Siempre verifique antes de confiar — contacte a las empresas directamente en su sitio web oficial, nunca a través de un enlace en un mensaje.",
+    "lessonContent.avoidingScams.section2.heading": "Señales de Alerta",
+    "lessonContent.avoidingScams.section2.item1": "Presión para actuar de inmediato",
+    "lessonContent.avoidingScams.section2.item2": "Solicitudes de códigos, contraseñas o pagos",
+    "lessonContent.avoidingScams.section2.item3": "Ofertas que suenan demasiado buenas para ser reales",
+    "lessonContent.avoidingScams.section2.item4": "Mensajes de remitentes desconocidos",
+    "lessonContent.avoidingScams.section2.item5": "Solicitudes de comprar tarjetas de regalo o enviar dinero",
+    "lessonContent.avoidingScams.section3.heading": "Qué Hacer al Detectar una Estafa",
+    "lessonContent.avoidingScams.section3.content": "No responda ni haga clic en nada — bloquee al remitente, elimine el mensaje y cuéntele a alguien de confianza.",
+    "lessonContent.avoidingScams.keyPoint1": "Verifique la fuente — contacte a las empresas directamente, nunca a través del mensaje",
+    "lessonContent.avoidingScams.keyPoint2": "Nunca comparta contraseñas ni información personal a menos que usted haya iniciado el contacto",
+    "lessonContent.avoidingScams.keyPoint3": "Vaya despacio — los estafadores crean urgencia a propósito",
 
     // Lesson Content - Email Phishing
     "lessonContent.emailPhishing.title": "Estafas por Correo",
-    "lessonContent.emailPhishing.section1.heading": "Signos de Correo Falso",
-    "lessonContent.emailPhishing.section1.content": "Direcciones de remitente sospechosas, saludos genéricos, líneas de asunto urgentes, enlaces a sitios web falsos y solicitudes de información personal.",
-    "lessonContent.emailPhishing.section2.heading": "Real vs. Falso",
-    "lessonContent.emailPhishing.section2.content": "Las empresas reales usan direcciones de correo electrónico profesionales, saludos personalizados con tu nombre y no amenazan el cierre de la cuenta o piden contraseñas.",
-    "lessonContent.emailPhishing.section3.heading": "Cómo Protegerte",
-    "lessonContent.emailPhishing.section3.content": "Activa los filtros de spam. Nunca responda a correos sospechosos. Contacta a las empresas directamente. Reporta phishing. Elimina correos sospechosos.",
-    "lessonContent.emailPhishing.keyPoint1": "Revise la dirección del remitente cuidadosamente",
-    "lessonContent.emailPhishing.keyPoint2": "Empresas reales no pedirán contraseñas",
-    "lessonContent.emailPhishing.keyPoint3": "En caso de duda, contacte a la empresa directamente",
+    "lessonContent.emailPhishing.section1.heading": "Hábitos Seguros con el Correo",
+    "lessonContent.emailPhishing.section1.content": "Nunca haga clic en enlaces de correos sospechosos — vaya directamente al sitio web de la empresa escribiéndolo usted mismo.",
+    "lessonContent.emailPhishing.section2.heading": "Señales de Advertencia",
+    "lessonContent.emailPhishing.section2.item1": "Remitentes que no reconoce",
+    "lessonContent.emailPhishing.section2.item2": "Líneas de asunto urgentes",
+    "lessonContent.emailPhishing.section2.item3": "Saludos genéricos como \"Estimado Cliente\"",
+    "lessonContent.emailPhishing.section2.item4": "Solicitudes de contraseñas o información personal",
+    "lessonContent.emailPhishing.section3.heading": "Ante la Duda",
+    "lessonContent.emailPhishing.section3.content": "No responda — llame a la empresa usando el número de su sitio web oficial, no el del correo.",
+    "lessonContent.emailPhishing.keyPoint1": "Nunca haga clic en enlaces de correos de remitentes desconocidos o sospechosos",
+    "lessonContent.emailPhishing.keyPoint2": "Revise la dirección completa del remitente para detectar pequeñas diferencias",
+    "lessonContent.emailPhishing.keyPoint3": "Ante la duda, contacte a la empresa directamente",
+
+    // Lesson Content - Phone Scams
+    "lessonContent.phoneScams.title": "Estafas Telefónicas",
+    "lessonContent.phoneScams.section1.heading": "¿Qué Es el Phishing Telefónico?",
+    "lessonContent.phoneScams.section1.content": "Los estafadores llaman o envían textos fingiendo ser su banco, gobierno o soporte técnico para robar su información personal.",
+    "lessonContent.phoneScams.section2.heading": "Señales de Alerta",
+    "lessonContent.phoneScams.section2.item1": "Amenazas urgentes como \"su cuenta será bloqueada\"",
+    "lessonContent.phoneScams.section2.item2": "Solicitudes de códigos, contraseñas o pagos",
+    "lessonContent.phoneScams.section2.item3": "Llamadas o textos de números desconocidos",
+    "lessonContent.phoneScams.section2.item4": "Solicitudes de comprar tarjetas de regalo o transferir dinero",
+    "lessonContent.phoneScams.section3.heading": "Qué Hacer",
+    "lessonContent.phoneScams.section3.content": "Cuelgue las llamadas sospechosas y nunca comparta información personal — llame de vuelta al número oficial si tiene dudas.",
+    "lessonContent.phoneScams.keyPoint1": "Nunca dé información personal ni códigos por teléfono a menos que usted haya hecho la llamada",
+    "lessonContent.phoneScams.keyPoint2": "Cuelgue las llamadas sospechosas — siempre llame de vuelta al número oficial",
+    "lessonContent.phoneScams.keyPoint3": "No haga clic en enlaces de mensajes de texto de números desconocidos",
+
+    // Lesson Content - Social Media Scams
+    "lessonContent.socialMediaScams.title": "Estafas en Redes Sociales",
+    "lessonContent.socialMediaScams.section1.heading": "¿Qué Son las Estafas en Redes Sociales?",
+    "lessonContent.socialMediaScams.section1.content": "Los estafadores usan plataformas como Facebook para hacerse pasar por amigos o empresas y engañarlo para que comparta información o dinero.",
+    "lessonContent.socialMediaScams.section2.heading": "Señales de Advertencia",
+    "lessonContent.socialMediaScams.section2.item1": "Mensajes pidiendo dinero — incluso de alguien que conoce",
+    "lessonContent.socialMediaScams.section2.item2": "Cuentas con pocas fotos o creadas recientemente",
+    "lessonContent.socialMediaScams.section2.item3": "Enlaces a premios, ofertas o solicitudes urgentes",
+    "lessonContent.socialMediaScams.section3.heading": "Cómo Mantenerse Seguro",
+    "lessonContent.socialMediaScams.section3.content": "Nunca envíe dinero ni comparta información personal por redes sociales — si algo parece raro, llame a la persona directamente.",
+    "lessonContent.socialMediaScams.keyPoint1": "Nunca envíe dinero ni comparta información personal por redes sociales",
+    "lessonContent.socialMediaScams.keyPoint2": "Si un mensaje parece extraño — incluso de un amigo — llámelo directamente",
+    "lessonContent.socialMediaScams.keyPoint3": "Tenga cuidado con enlaces, premios y solicitudes urgentes en cualquier plataforma",
     
     // Lesson Content - Charts
     "lessonContent.charts.scamsIncreasing": "Estafas Aumentando",
@@ -649,31 +722,103 @@ const translations = {
 };
 
 export function AccessibilityProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState(() => {
+  // Start with localStorage as an instant fallback while Firestore loads
+  const [language, setLanguageState] = useState<string>(() => {
     return localStorage.getItem("silverguard-language") || "english";
   });
-  
-  const [textSize, setTextSizeState] = useState(() => {
+  const [textSize, setTextSizeState] = useState<number>(() => {
     const saved = localStorage.getItem("silverguard-textsize");
     return saved ? parseInt(saved) : 100;
   });
 
+  // Load settings from Firestore once auth is ready
+  useEffect(() => {
+    // Dynamically import to avoid circular deps (AuthContext also imports firebaseConfig)
+    Promise.all([
+      import("../firebaseConfig"),
+      import("./AuthContext"),
+      import("firebase/auth"),
+      import("firebase/firestore"),
+    ]).then(([{ db }, { auth }, { onAuthStateChanged }, { doc, getDoc }]) => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.language) {
+              setLanguageState(data.language);
+              localStorage.setItem("silverguard-language", data.language);
+            }
+            if (data.textSize) {
+              setTextSizeState(data.textSize);
+              localStorage.setItem("silverguard-textsize", String(data.textSize));
+            }
+          }
+        } catch (err) {
+          console.error("Failed to load settings from Firestore:", err);
+        }
+      });
+      return unsubscribe;
+    });
+  }, []);
+
+  const saveToFirestore = async (updates: { language?: string; textSize?: number }) => {
+    try {
+      const { db } = await import("../firebaseConfig");
+      const { auth } = await import("./AuthContext");
+      const { doc, setDoc } = await import("firebase/firestore");
+      const user = auth.currentUser;
+      if (!user) return;
+      await setDoc(doc(db, "users", user.uid), updates, { merge: true });
+    } catch (err) {
+      console.error("Failed to save settings to Firestore:", err);
+    }
+  };
+
   const setLanguage = (lang: string) => {
     setLanguageState(lang);
     localStorage.setItem("silverguard-language", lang);
+    saveToFirestore({ language: lang });
   };
 
   const setTextSize = (size: number) => {
     setTextSizeState(size);
     localStorage.setItem("silverguard-textsize", size.toString());
+    saveToFirestore({ textSize: size });
   };
 
-  // Translation function
-  const t = (key: string): string => {
-    if (language === "spanish") {
-      return translations.es[key] || translations.en[key] || key;
+  const reloadForUser = async () => {
+    try {
+      const { db } = await import("../firebaseConfig");
+      const { auth } = await import("./AuthContext");
+      const { doc, getDoc } = await import("firebase/firestore");
+      const user = auth.currentUser;
+      if (!user) return;
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        if (data.language) {
+          setLanguageState(data.language);
+          localStorage.setItem("silverguard-language", data.language);
+        }
+        if (data.textSize) {
+          setTextSizeState(data.textSize);
+          localStorage.setItem("silverguard-textsize", String(data.textSize));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to reload settings from Firestore:", err);
     }
-    return translations.en[key] || key;
+  };
+
+  const t = (key: string): string => {
+    const en = translations.en as Record<string, string>;
+    const es = translations.es as Record<string, string>;
+    if (language === "spanish") {
+      return es[key] || en[key] || key;
+    }
+    return en[key] || key;
   };
 
   useEffect(() => {
@@ -681,7 +826,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
   }, [textSize]);
 
   return (
-    <AccessibilityContext.Provider value={{ language, setLanguage, textSize, setTextSize, t }}>
+    <AccessibilityContext.Provider value={{ language, setLanguage, textSize, setTextSize, t, reloadForUser }}>
       {children}
     </AccessibilityContext.Provider>
   );
@@ -690,15 +835,14 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 export function useAccessibility() {
   const context = useContext(AccessibilityContext);
   if (!context) {
-    // During HMR, provide a temporary fallback to prevent crashes
-    if (import.meta.hot) {
-      // Silent fallback during HMR - this is expected behavior
+    if ((import.meta as any).hot) {
       return {
         language: 'english',
         setLanguage: () => {},
         textSize: 100,
         setTextSize: () => {},
         t: (key: string) => key,
+        reloadForUser: () => Promise.resolve(),
       };
     }
     throw new Error("useAccessibility must be used within AccessibilityProvider");

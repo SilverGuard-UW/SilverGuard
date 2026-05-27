@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { AlertTriangle, CheckCircle, XCircle, Mail, MessageSquare, Phone, Smartphone } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Phone } from "lucide-react";
 import { Progress } from "../ui/progress";
 import { Volume2 } from "lucide-react";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
 
 export function PhishingSimulator() {
   const { t, language } = useAccessibility();
+  const { user } = useAuth();
   const [currentScenario, setCurrentScenario] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<boolean | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -27,7 +32,7 @@ export function PhishingSimulator() {
       title: language === "spanish" ? "Alerta de Seguridad Bancaria" : "Bank Security Alert",
       from: "security@paypa1-alerts.com",
       subject: language === "spanish" ? "URGENTE: ¡Verifique su cuenta ahora!" : "URGENT: Verify your account now!",
-      message: language === "spanish" 
+      message: language === "spanish"
         ? "Estimado Cliente,\n\nDetectamos actividad sospechosa en su cuenta. Haga clic aquí inmediatamente para verificar su identidad o su cuenta será suspendida en 24 horas.\n\nHaga clic en este enlace ahora: http://paypal-verify-account.xyz/login\n\nGracias,\nEquipo de Seguridad de PayPal"
         : "Dear Customer,\n\nWe detected suspicious activity on your account. Click here immediately to verify your identity or your account will be suspended within 24 hours.\n\nClick this link now: http://paypal-verify-account.xyz/login\n\nThank you,\nPayPal Security Team",
       isScam: true,
@@ -46,7 +51,7 @@ export function PhishingSimulator() {
         : "USPS: Your package is waiting. We attempted delivery. Click to reschedule: bit.ly/pkg-3x9f2\n\nConfirm your address and pay $2.99 redelivery fee.",
       isScam: true,
       explanation: language === "spanish"
-        ? "¡Esto es una ESTAFA! USPS no envía mensajes de texto con enlaces acortados ni pide tarifas de entrega de esta manera. Siempre use el seguimiento oficial en su sitio web."
+        ? "¡Esto es una ESTAFA! USPS no envía mensajes de texto con enlaces acortados ni pide tarifas de entrega de esta manera."
         : "This is a SCAM! USPS doesn't send texts with shortened links or ask for delivery fees this way. Always use official tracking on their website.",
     },
     {
@@ -60,7 +65,7 @@ export function PhishingSimulator() {
         : "Hello John Smith,\n\nYour Chase credit card statement for February 2026 is now available. Sign in to your account at chase.com to view your statement.\n\nIf you have questions, call us at 1-800-935-9935.\n\nThank you,\nChase Customer Service",
       isScam: false,
       explanation: language === "spanish"
-        ? "¡Esto es SEGURO! Dominio de correo legítimo, saludo personalizado, sin enlaces directos de inicio de sesión, proporciona número de teléfono oficial y sin urgencia o amenazas."
+        ? "¡Esto es SEGURO! Dominio de correo legítimo, saludo personalizado, sin enlaces directos de inicio de sesión, proporciona número de teléfono oficial."
         : "This is SAFE! Legitimate email domain, personalized greeting, no direct login links, provides official phone number, and no urgency or threats.",
     },
     {
@@ -74,7 +79,7 @@ export function PhishingSimulator() {
         : "This is the IRS calling about a serious tax investigation. There is a warrant out for your arrest due to unpaid taxes. You must call us back immediately at 1-888-555-SCAM or officers will be dispatched to your address. This is your final warning!",
       isScam: true,
       explanation: language === "spanish"
-        ? "¡Esto es una ESTAFA! El IRS nunca llama sobre arrestos u órdenes. Crean miedo y urgencia. El IRS real siempre lo contacta por correo primero."
+        ? "¡Esto es una ESTAFA! El IRS nunca llama sobre arrestos u órdenes. El IRS real siempre lo contacta por correo primero."
         : "This is a SCAM! The IRS never calls about arrests or warrants. They create fear and urgency. Real IRS always contacts you by mail first.",
     },
     {
@@ -88,7 +93,7 @@ export function PhishingSimulator() {
         : "CONGRATULATIONS!!!\n\nYou have been randomly selected to receive $5,000! To claim your prize, click here and enter your bank account details.\n\nThis offer expires in 48 hours!\n\nClaim now: http://claim-prize-now.biz/winner",
       isScam: true,
       explanation: language === "spanish"
-        ? "¡Esto es una ESTAFA! No participaste en un concurso, solicita detalles bancarios, tiene un dominio sospechoso, crea urgencia y es demasiado bueno para ser verdad."
+        ? "¡Esto es una ESTAFA! No participaste en un concurso, solicita detalles bancarios y es demasiado bueno para ser verdad."
         : "This is a SCAM! You didn't enter a contest, it requests bank details, has a suspicious domain, creates urgency, and it's too good to be true.",
     },
   ];
@@ -114,18 +119,24 @@ export function PhishingSimulator() {
     }
   };
 
-  const handleConfidenceSubmit = () => {
-    if (confidenceRating !== null) {
-      // Save confidence rating to localStorage
-      const confidenceHistory = JSON.parse(localStorage.getItem('silverguard-confidence') || '[]');
-      confidenceHistory.push({
+  const handleConfidenceSubmit = async () => {
+    if (confidenceRating !== null && user) {
+      const quizEntry = {
         rating: confidenceRating,
-        score: score,
+        score,
         totalQuestions: scenarios.length,
         date: new Date().toISOString(),
-      });
-      localStorage.setItem('silverguard-confidence', JSON.stringify(confidenceHistory));
-      
+      };
+      try {
+        const userDoc = doc(db, "users", user.uid);
+        await setDoc(
+          userDoc,
+          { quizHistory: arrayUnion(quizEntry) },
+          { merge: true }
+        );
+      } catch (err) {
+        console.error("Failed to save quiz result:", err);
+      }
       setCompleted(true);
     }
   };
@@ -138,19 +149,6 @@ export function PhishingSimulator() {
     setCompleted(false);
     setConfidenceRating(null);
     setShowConfidenceScreen(false);
-  };
-
-  const getIcon = () => {
-    switch (scenario.type) {
-      case "email":
-        return <Mail className="h-12 w-12 text-blue-600" />;
-      case "sms":
-        return <MessageSquare className="h-12 w-12 text-green-600" />;
-      case "phone":
-        return <Phone className="h-12 w-12 text-purple-600" />;
-      default:
-        return <Smartphone className="h-12 w-12 text-gray-600" />;
-    }
   };
 
   if (completed) {
@@ -201,7 +199,7 @@ export function PhishingSimulator() {
               ) : (
                 <>
                   <p className="text-2xl leading-relaxed">
-                    {t("simulator.keepLearning")}
+                    {t("simulator.keepLearningMsg")}
                   </p>
                   <div className="bg-white p-6 rounded-lg border border-yellow-200">
                     <h4 className="text-2xl mb-4">{t("simulator.tips")}</h4>
@@ -220,12 +218,16 @@ export function PhishingSimulator() {
               <Button size="lg" onClick={handleRestart} className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-blue-600 hover:bg-blue-700 text-white border-4 border-blue-800">
                 {t("simulator.retakeQuiz")}
               </Button>
-              <Button size="lg" onClick={() => window.location.href = "/education"} className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-green-600 hover:bg-green-700 text-white border-4 border-green-800">
-                {t("simulator.keepLearning")}
-              </Button>
-              <Button size="lg" onClick={() => window.location.href = "/dashboard"} className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-purple-600 hover:bg-purple-700 text-white border-4 border-purple-800">
-                {t("simulator.trackProgress")}
-              </Button>
+              <Link to="/education" className="block">
+                <Button size="lg" className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-green-600 hover:bg-green-700 text-white border-4 border-green-800">
+                  {t("simulator.keepLearning")}
+                </Button>
+              </Link>
+              <Link to="/dashboard" className="block">
+                <Button size="lg" className="w-full text-3xl h-auto py-10 rounded-xl shadow-lg bg-purple-600 hover:bg-purple-700 text-white border-4 border-purple-800">
+                  {t("simulator.trackProgress")}
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -289,8 +291,7 @@ export function PhishingSimulator() {
     );
   }
 
-  // Render iMessage-style UI for SMS
-  const renderSMS = () => (
+   const renderSMS = () => (
     <div className="max-w-sm mx-auto">
       {/* iPhone Frame */}
       <div className="bg-black rounded-[3.5rem] p-3 shadow-2xl">
