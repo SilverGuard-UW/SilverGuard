@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Shield, BookOpen } from "lucide-react";
+import { Shield, BookOpen, AlertTriangle } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
@@ -14,6 +14,21 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Server Shutdown Notice Banner */}
+      <div className="bg-red-600 text-white px-4 py-4">
+        <div className="max-w-6xl mx-auto flex items-start gap-3">
+          <AlertTriangle className="h-6 w-6 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-lg leading-tight">
+              ⚠️ Important Notice: Servers Going Offline
+            </p>
+            <p className="text-red-100 mt-1 text-base leading-snug">
+              Our servers will be going offline and the database will be permanently deleted.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center mb-20">
